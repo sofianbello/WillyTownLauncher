@@ -93,7 +93,7 @@ def check_for_updates():
 def check_for_updates_thread():
     """Führt die Überprüfung auf Updates in einem separaten Thread aus."""
     try:
-        update_url = "https://raw.githubusercontent.com/sofianbello/WillyTownLauncher/main/latest_version.txt"
+        update_url = "https://raw.githubusercontent.com/sofianbello/WillyTownLauncher/main/releases/latest/latest_version.txt"
         response = requests.get(update_url)
         latest_version = response.text.strip()
 
@@ -103,7 +103,7 @@ def check_for_updates_thread():
             with open(local_version_path, 'r') as f:
                 local_version = f.read().strip()
         else:
-            local_version = "0.0"  # Wenn die Version nicht existiert
+            local_version = "Vanilla"  # Wenn die Version nicht existiert
 
         # Aktualisierung der Versionsanzeige
         show_current_version(latest_version, local_version)
@@ -144,7 +144,7 @@ def start_update(latest_version):
 def download_update(latest_version):
     """Download des Updates initiieren."""
     try:
-        download_url = "https://cloud.bellox.eu/s/sNATy85Y6xSEfSN/download/client.zip"
+        download_url = "https://github.com/sofianbello/WillyTownLauncher/raw/main/releases/latest/client.zip"
         response = requests.get(download_url, stream=True)  # Stream für Fortschrittsanzeige
         total_size = int(response.headers.get('content-length', 0))
         downloaded_size = 0
@@ -216,7 +216,7 @@ def main():
     LOCAL_GAME_PATH = read_registry()  # Versucht, den Pfad aus der Registry zu lesen
 
     root = tk.Tk()
-    root.title("Valheim Launcher")
+    root.title("WillyTown Launcher")
 
 
     if LOCAL_GAME_PATH is None:
