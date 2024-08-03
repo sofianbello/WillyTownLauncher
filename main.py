@@ -210,6 +210,12 @@ def update_button_label(label):
     start_button.config(text=label)
 
 
+def manual_check_updates():
+    """Funktion zum manuellen Überprüfen auf Updates."""
+    update_status("Manuelle Überprüfung auf Updates...")
+    threading.Thread(target=check_for_updates_thread).start()  # Startet die Überprüfung in einem neuen Thread
+
+
 def main():
     global LOCAL_GAME_PATH, root, status_bar, status_label, percent_label, start_button, version_label
 
@@ -218,13 +224,16 @@ def main():
     root = tk.Tk()
     root.title("WillyTown Launcher")
 
-
     if LOCAL_GAME_PATH is None:
         messagebox.showwarning("Warnung", "Valheim wurde nicht im Standardverzeichnis gefunden.")
 
-    # Button für Spiel starten oder Aktualisieren
+    # Button für Updates suchen
     start_button = tk.Button(root, text="Nach Updates suchen", command=check_for_updates)
     start_button.pack(pady=10)
+
+    # Button für manuelles Update prüfen
+    manual_update_button = tk.Button(root, text="Manuell nach Updates suchen", command=manual_check_updates)
+    manual_update_button.pack(pady=10)
 
     # Button zum Ändern des Game-Pfads
     change_path_button = tk.Button(root, text="Pfad zu Valheim ändern", command=set_custom_path)
@@ -247,7 +256,6 @@ def main():
     check_for_updates()
 
     root.mainloop()
-
 
 if __name__ == "__main__":
     main()
