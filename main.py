@@ -83,6 +83,7 @@ def show_version():
         version_label.config(text="Version nicht gefunden")  # Set default text if version.txt doesn't exist
 
 
+
 def check_for_updates():
     """Überprüfen, ob Updates verfügbar sind."""
     update_status("Prüfe aktuelle Version auf Updates...")
@@ -140,10 +141,26 @@ def start_update(latest_version):
     show_progress_widgets()  # Zeige die Fortschrittsanzeigen
     threading.Thread(target=download_update, args=(latest_version,)).start()  # Download im Thread
 
+def delete_bepinex_folder():
+    """Löscht den BepInEx-Ordner und seinen gesamten Inhalt."""
+    bep_in_ex_path = os.path.join(LOCAL_GAME_PATH, "BepInEx")
+    if os.path.exists(bep_in_ex_path):
+        try:
+            for root, dirs, files in os.walk(bep_in_ex_path, topdown=False):
+                for name in files:
+                    os.remove(os.path.join(root, name))
+                for name in dirs:
+                    os.rmdir(os.path.join(root, name))
+            os.rmdir(bep_in_ex_path)  # Löscht den BepInEx-Ordner selbst
+        except Exception as e:
+            messagebox.showerror("Fehler", f"Fehler beim Löschen des BepInEx-Ordners: {e}")
 
 def download_update(latest_version):
     """Download des Updates initiieren."""
     try:
+        # Bevor das Update entpackt wird, BepInEx löschen
+        delete_bepinex_folder()
+
         download_url = "https://github.com/sofianbello/WillyTownLauncher/raw/main/releases/latest/client.zip"
         response = requests.get(download_url, stream=True)  # Stream für Fortschrittsanzeige
         total_size = int(response.headers.get('content-length', 0))
@@ -167,8 +184,6 @@ def download_update(latest_version):
         show_current_version(latest_version, latest_version)  # Zeige die aktuelle Version an
         update_status("Update erfolgreich installiert.")
         hide_progress_widgets()
-
-
 
         # Den Button auf "Spiel starten" umschalten
         update_button_label("Spiel starten")
@@ -224,6 +239,20 @@ def main():
     root = tk.Tk()
     root.title("WillyTown Launcher")
 
+    # Statuslabel immer erstellen
+    status_label = tk.Label(root, text="", width=40)
+    status_label.pack(pady=5)
+
+    version_label = tk.Label(root, text="", width=40)
+    version_label.pack(pady=10)
+
+    # Prozentlabel und Statusbar immer erstellen
+    percent_label = tk.Label(root, text="0%", width=10)
+    percent_label.pack(pady=5)
+
+    status_bar = ttk.Progressbar(root, orient="horizontal", length=300, mode="determinate")
+    status_bar.pack(pady=10)
+
     if LOCAL_GAME_PATH is None:
         messagebox.showwarning("Warnung", "Valheim wurde nicht im Standardverzeichnis gefunden.")
 
@@ -238,19 +267,6 @@ def main():
     # Button zum Ändern des Game-Pfads
     change_path_button = tk.Button(root, text="Pfad zu Valheim ändern", command=set_custom_path)
     change_path_button.pack(pady=10)
-
-    # Label für aktuelle Version
-    version_label = tk.Label(root, text="", width=40)
-    version_label.pack(pady=10)
-
-    # Fortschrittsanzeige hinzufügen
-    status_bar = ttk.Progressbar(root, orient="horizontal", length=300, mode="determinate")
-
-    # Label für Statusnachrichten
-    status_label = tk.Label(root, text="", width=40)
-
-    # Label für den Prozentstatus
-    percent_label = tk.Label(root, text="0%", width=10)
 
     # Automatische Überprüfung auf Updates beim Start
     check_for_updates()
